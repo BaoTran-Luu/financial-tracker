@@ -8,4 +8,6 @@ version = "0.1.0"
 description = "An application to track your financial transactions and manage your budget."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "pandas>=2.3.3",
+]

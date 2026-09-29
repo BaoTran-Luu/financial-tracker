@@ -3,3 +3,7 @@ ID,Date,Type,Amount,Category,Description
 2,2026-06-12,income,1200.0,Salary,no
 3,2026-07-01,expense,123.5,Miete,no
 4,2026-08-23,income,125.6,Salary,no
+5,2026-08-23,expense,120.0,Miete,no
+6,2026-08-11,expense,20.0,Foods,
+7,2026-08-01,expense,2.5,Bus,no
+8,2026-07-16,income,124.0,tip,no

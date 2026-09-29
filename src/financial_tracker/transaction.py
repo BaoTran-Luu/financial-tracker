@@ -27,8 +27,8 @@ class Transaction:
 
         for fmt in formats:
             try:
-                datetime.strptime(date_str, fmt)
-                return date_str
+                date=datetime.strptime(date_str, fmt)
+                return date.strftime("%Y-%m-%d")  # Return in standard format     
             except (ValueError, TypeError):
                 continue
         raise ValueError(
@@ -61,6 +61,17 @@ class Transaction:
             raise ValueError(
                 f"Invalid amount '{amount}'. Must be a non-negative number.")
         
+    def __str__(self):
+        """Return a string representation of the transaction."""
+        return (
+            f"ID: {self.ID}, "
+            f"Date: {self.date}, "
+            f"Type: {self.tst_type}, "
+            f"Amount: {self.amount:.2f}, "
+            f"Category: {self.category}, "
+            f"Description: {self.description}"
+        )
+
 
     def signed_amount(self):
         """Return the amount as positive for income and negative for expense."""

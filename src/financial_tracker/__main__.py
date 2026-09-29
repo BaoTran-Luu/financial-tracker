@@ -17,12 +17,22 @@ def show_menu(tracker):
     print(f"Current balance: €{tracker.calculate_balance():.2f}")
     print()
     print("What would you like to do now?")
+    print("-----------------------------------------------------")  
+    print("💸 TRANSACTIONS")
+    print("-----------------------------------------------------")
     print("1. Add income/expense transaction")
     print("2. Find transactions")
     print("3. Update transactions")
     print("4. Remove a transaction")
-    print("5. View all transactions")
-    print("6. Exit")
+    print("-----------------------------------------------------")  
+    print("📊 SUMMARY AND ANALYSIS ")
+    print("-----------------------------------------------------")
+    print("5. Monthly summary")
+    print("6. Category summary")
+    print("7. View all transactions")
+    print("-----------------------------------------------------")
+    print("8. Exit")
+
 
 
 def main():
@@ -83,7 +93,7 @@ def main():
                 transaction_id = int(
                     input("Please enter the transaction ID: "))
                 results = tracker.find_transactions(ID=transaction_id)
-
+            
             elif filter_choice == "2":
                 date = input("Please enter the date (YYYY-MM-DD): ")
                 results = tracker.find_transactions(date=date)
@@ -96,7 +106,7 @@ def main():
                 except ValueError as e:
                     print(e)
                     continue
-            
+
                 results = tracker.find_transactions(tst_type=tst_type)
             
             elif filter_choice == "4":
@@ -104,24 +114,45 @@ def main():
                 results = tracker.find_transactions(category=category)
             
             else:
-                print("Invalid choice. Transaction not found.")
+                print("Invalid choice. Please try again.")
                 continue
+
+            if results:
+                for transaction in results:
+                 print(transaction)
+            else:
+                 print("No matching transactions found.")
             input("\nPress Enter to return to the main menu...")
+
 
         elif choice == "3":  # update transaction
             tracker.update_transaction()
             tracker.save_transactions()
             input("\nPress Enter to return to the main menu...")
 
+
         elif choice == "4":  # remove transaction
             tracker.remove_transaction()
             tracker.save_transactions()
             input("\nPress Enter to return to the main menu...")
 
-        elif choice == "5":  # View all transactions
+
+        elif choice == "5": # Monthly summary
+            tracker.monthly_summary()
+            input("\nPress Enter to return to the main menu...")
+
+
+        elif choice == "6":  # Category summary
+            tracker.category_summary()
+            input("\nPress Enter to return to the main menu...")
+
+
+        elif choice == "7":  # View all transactions
             tracker.view_all_transactions()
             input("\nPress Enter to return to the main menu...")
-        elif choice == "6":  # exit
+
+
+        elif choice == "8":  # exit
             print("Thank you for using FinaTracker!")
             print("Have a great day! Goodbye!")
             break
