@@ -1,22 +1,55 @@
-""" this module is used to manage the data for the application. 
-It provides functions to load, save, and manipulate data in a structured way. 
-The data is stored in a JSON format and can be easily accessed and modified using the provided functions."""
 
+""" This module is used to manage the data for the application. 
+It provides functionalities to add, find, update, remove, and view transactions, as well as to calculate the current balance based on all transactions.
+The transactions are stored in a CSV file, allowing for persistent storage and retrieval of financial data."""
+
+import csv
 from transaction import Transaction
 
 
 class Transactions_Manager:
 
     def __init__(self):
-        self.transactions = []  # List to store Transaction objects
+        self.transactions = []  
 
     def add_transaction(self, transaction):
+        """Add a new transaction to the list of transactions."""
         if isinstance(transaction, Transaction):
             self.transactions.append(transaction)
         else:
             raise ValueError("Only Transaction objects can be added.")
         return
 
+    def save_transactions(self):
+        """Save transactions to the transaction     CSV file."""  
+        with open("transaction.csv", mode="w", newline="") as file:
+            writer = csv.writer(file)
+            
+            writer.writerow(["ID", "Date", "Type", "Amount", "Category", "Description"])
+            for transaction in self.transactions:
+                writer.writerow([transaction.ID, transaction.date, transaction.tst_type,
+                                 transaction.amount, transaction.category, transaction.description])
+
+    def load_transactions(self):
+        """Load transactions from the transaction CSV file."""
+        try:
+            with open("transaction.csv", mode="r") as file:
+                reader = csv.DictReader(file)
+                self.transactions = []
+                for row in reader:
+                    transaction = Transaction(
+                        row["Date"], row["Type"], row["Amount"], row["Category"], row["Description"])
+                    transaction.ID = int(row["ID"])  # Ensure ID is an integer
+                    self.transactions.append(transaction)
+        except FileNotFoundError:
+            print("No existing transaction file found. Starting with an empty list.")
+
+    def find_transactions(self, **kwargs):
+        """Find or filter transactions based on provided keyword arguments."""
+        found_transactions = self.transactions
+        for key, value in kwargs.items():
+            found_transactions = [t for t in found_transactions if getattr(t, key) == value]
+        return found_transactions
 
     def update_transaction(self):
         """Update a transaction's attributes based on provided keyword arguments."""
@@ -54,10 +87,9 @@ class Transactions_Manager:
                     print("Description updated successfully.")
                 
                 else: print("Invalid choice. No updates made.")
-                return  # Exit after updating the transaction
-            raise ValueError(f"No transaction found with ID {transaction_id}")
-        return  # Exit after updating the transaction
-
+                return 
+        raise ValueError(f"No transaction found with ID {transaction_id}")
+    
     def remove_transaction(self):
         """Remove a transaction by its ID."""
         transaction_id = int(input("Enter the transaction ID to remove: "))
@@ -79,7 +111,7 @@ class Transactions_Manager:
                   f"Description: {transaction.description}"
                   )
 
-
+    
     def calculate_balance(self):
         """Calculate and return the current balance based on all transactions."""
         balance = 0.0

@@ -1,10 +1,10 @@
 # Financial Tracker Application
+# This file contains the main logic for the financial tracker application. 
+# It provides a command-line interface for users to interact with their financial data, 
+# allowing them to add, find, update, remove, and view transactions.
 
 from transaction import Transaction
 from transactions_manager import Transactions_Manager
-
-# Initialize the transactions manager
-tracker = Transactions_Manager()
 
 
 def show_menu(tracker):
@@ -18,41 +18,117 @@ def show_menu(tracker):
     print()
     print("What would you like to do now?")
     print("1. Add income/expense transaction")
-    print("2. Update transactions")
-    print("3. Remove a transaction")
-    print("4. View all transactions")
-    print("5. Exit")
+    print("2. Find transactions")
+    print("3. Update transactions")
+    print("4. Remove a transaction")
+    print("5. View all transactions")
+    print("6. Exit")
 
 
 def main():
+    tracker = Transactions_Manager()
+    tracker.load_transactions()  # Load existing transactions from the file
+
     while True:
         show_menu(tracker)
 
         choice = input("Please enter your choice here: ")
 
         if choice == "1":  # add transaction
-            date = input("Please enter the date (YYYY-MM-DD): ")
-            tst_type = input("Do you want to add an income or expense? ")
-            amount = input("Please enter the amount: ")
+            while True:
+                date = input("Please enter the date (YYYY-MM-DD): ")
+                try:
+                    date = Transaction.valid_date(date)
+                    break
+                except ValueError as e:
+                    print(e)
+
+            while True:
+                tst_type = input(
+                    "What type of transaction is this? (please enter I for Income or E for Expense): ")
+                try:
+                    tst_type = Transaction.valid_type(tst_type)
+                    break
+                except ValueError as e:
+                    print(e)
+
+            while True:
+                amount = input("Please enter the amount: ")
+                try:
+                    amount = Transaction.valid_amount(amount)
+                    break
+                except ValueError as e:
+                    print(e)
+
             category = input("Please enter the category (optional): ")
             description = input("Please enter a description (optional): ")
             transaction = Transaction(
                 date, tst_type, amount, category, description)
             tracker.add_transaction(transaction)
+            tracker.save_transactions()
             print("Thank you! Transaction added successfully!")
+            input("\nPress Enter to return to the main menu...")
 
-        elif choice == "2":  # update transaction
+        elif choice == "2":  # find/filter transactions
+            print(
+                "\nYou can find transactions by Transaction ID, date, type, or category.")
+            print("Please choose one of the following options:")
+            print("1. Find by transaction ID")
+            print("2. Find by date")
+            print("3. Find by type (income/expense)")
+            print("4. Find by category")
+
+            filter_choice = input("Please enter your choice here: ")
+            if filter_choice == "1":
+                transaction_id = int(
+                    input("Please enter the transaction ID: "))
+                results = tracker.find_transactions(ID=transaction_id)
+
+            elif filter_choice == "2":
+                date = input("Please enter the date (YYYY-MM-DD): ")
+                results = tracker.find_transactions(date=date)
+
+            elif filter_choice == "3":
+                tst_type = input(
+                    "Please enter I for Income or E for Expense: ").upper()
+                try:
+                    tst_type = Transaction.valid_type(tst_type)
+                except ValueError as e:
+                    print(e)
+                    continue
+            
+                results = tracker.find_transactions(tst_type=tst_type)
+            
+            elif filter_choice == "4":
+                category = input("Please enter the category: ")
+                results = tracker.find_transactions(category=category)
+            
+            else:
+                print("Invalid choice. Transaction not found.")
+                continue
+            input("\nPress Enter to return to the main menu...")
+
+        elif choice == "3":  # update transaction
             tracker.update_transaction()
-        elif choice == "3":  # remove transaction
+            tracker.save_transactions()
+            input("\nPress Enter to return to the main menu...")
+
+        elif choice == "4":  # remove transaction
             tracker.remove_transaction()
-        elif choice == "4":  # View all transactions
+            tracker.save_transactions()
+            input("\nPress Enter to return to the main menu...")
+
+        elif choice == "5":  # View all transactions
             tracker.view_all_transactions()
-        elif choice == "5":  # exit
-            print("Goodbye!")
+            input("\nPress Enter to return to the main menu...")
+        elif choice == "6":  # exit
+            print("Thank you for using FinaTracker!")
+            print("Have a great day! Goodbye!")
             break
         else:
             print("Invalid choice.")
 
+        tracker.save_transactions()
 
 if __name__ == "__main__":
     main()

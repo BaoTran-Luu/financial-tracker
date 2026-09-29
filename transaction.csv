@@ -1,0 +1,5 @@
+ID,Date,Type,Amount,Category,Description
+1,2026-05-12,income,1200.0,Salary,test 1
+2,2026-06-12,income,1200.0,Salary,no
+3,2026-07-01,expense,123.5,Miete,no
+4,2026-08-23,income,125.6,Salary,no
