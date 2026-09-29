@@ -3,8 +3,8 @@
 # It provides a command-line interface for users to interact with their financial data, 
 # allowing them to add, find, update, remove, and view transactions.
 
-from transaction import Transaction
-from transactions_manager import Transactions_Manager
+from .transaction import Transaction
+from .transactions_manager import Transactions_Manager
 
 
 def show_menu(tracker):

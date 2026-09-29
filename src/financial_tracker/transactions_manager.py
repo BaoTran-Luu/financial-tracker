@@ -4,7 +4,7 @@ It provides functionalities to add, find, update, remove, and view transactions,
 The transactions are stored in a CSV file, allowing for persistent storage and retrieval of financial data."""
 
 import csv
-from transaction import Transaction
+from .transaction import Transaction
 
 
 class Transactions_Manager:
