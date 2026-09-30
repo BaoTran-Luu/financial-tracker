@@ -1,5 +1,6 @@
 
 import tkinter as tk
+import pandas as pd
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 
@@ -40,66 +41,22 @@ def create_gui():
     dashboard_frame = ttk.Frame(root)
     dashboard_frame.pack(pady=40)
 
-    # balance card
-    balance_card = ttk.LabelFrame(dashboard_frame, text="Balance", padding=20)
-    balance_card.grid(row=0, column=0, padx=20)
-    balance_value = ttk.Label(balance_card,
-                              text="€0.00",
-                              font=("Segoe UI", 16, "bold"), foreground="blue")
-    balance_value.grid(row=1, column=0)
-    
-    def refresh_balance():
-        """Refresh the displayed balance."""
-        balance = tracker.calculate_balance()
-        balance_value.config(text=f"€{balance:.2f}")
-
-    # income card
-    income_card = ttk.LabelFrame(dashboard_frame, text="Income", padding=20)
-    income_card.grid(row=0, column=1, padx=20)
-    income_value = ttk.Label(income_card,
-                             text="€0.00",
-                             font=("Segoe UI", 16, "bold"), foreground="green")
-    income_value.grid(row=1, column=0)
-    
-    def refresh_income():
-        """Update total income in dashboard"""
+    def total_calculate():
+        """Calculate total balance, income and expenses"""
         income = sum(transaction.amount for transaction in tracker.transactions
                      if transaction.tst_type == "income")
-        income_value.config(text=f"€{income:.2f}")
-
-    # expenses card
-    expenses_card = ttk.LabelFrame(
-        dashboard_frame, text="Expenses", padding=20)
-    expenses_card.grid(row=0, column=2, padx=20)
-    expenses_value = ttk.Label(expenses_card,
-                               text="€0.00",
-                               font=("Segoe UI", 16, "bold"), foreground="red")
-    expenses_value.grid(row=1, column=0)
-    
-    def refresh_expenses():
         expenses = sum(transaction.amount for transaction in tracker.transactions
-                      if transaction.tst_type == "expense")
+                       if transaction.tst_type == "expense")
+        balance = income - expenses
+
+        return income, expenses, balance
+
+    def refresh_card():
+        """Refresh the displayed balance."""
+        income, expenses, balance = total_calculate()
+        income_value.config(text=f"€{income:.2f}")
         expenses_value.config(text=f"€{expenses:.2f}")
-
-
-    def create_table(parent, columns):
-        """Create a unified styled table."""
-        table = ttk.Treeview(
-            parent,
-            columns=columns,
-            show="headings"
-        )
-        for column in columns:
-            table.heading(column, text=column)
-            table.column(column, width=100)
-
-        table.pack(
-            fill="both",
-            expand=True,
-            padx=10,
-            pady=10
-        )
-        return table
+        balance_value.config(text=f"€{balance:.2f}")
 
     def refresh_table():
         """Refresh the transaction table."""
@@ -116,15 +73,57 @@ def create_gui():
                              transaction.amount,
                              transaction.category,
                              transaction.description))
-        refresh_balance()
-        refresh_income()
-        refresh_expenses()
+        refresh_card()
+
+    # balance card
+    balance_card = ttk.LabelFrame(dashboard_frame, text="Balance", padding=20)
+    balance_card.grid(row=0, column=0, padx=20)
+    balance_value = ttk.Label(balance_card,
+                              text="€0.00",
+                              font=("Segoe UI", 16, "bold"), foreground="blue")
+    balance_value.grid(row=1, column=0)
+
+    # income card
+    income_card = ttk.LabelFrame(dashboard_frame, text="Income", padding=20)
+    income_card.grid(row=0, column=1, padx=20)
+    income_value = ttk.Label(income_card,
+                             text="€0.00",
+                             font=("Segoe UI", 16, "bold"), foreground="green")
+    income_value.grid(row=1, column=0)
+
+    # expenses card
+    expenses_card = ttk.LabelFrame(
+        dashboard_frame, text="Expenses", padding=20)
+    expenses_card.grid(row=0, column=2, padx=20)
+    expenses_value = ttk.Label(expenses_card,
+                               text="€0.00",
+                               font=("Segoe UI", 16, "bold"), foreground="red")
+    expenses_value.grid(row=1, column=0)
+
+    def create_table(parent, columns):
+        """Create a unified styled table."""
+        table = ttk.Treeview(
+            parent,
+            columns=columns,
+            show="headings")
+        for column in columns:
+            table.heading(column, text=column)
+            table.column(column, width=100)
+
+        table.pack(
+            fill="both",
+            expand=True,
+            padx=10,
+            pady=5
+        )
+        return table
 
     # add transaction table
     table_frame = ttk.Frame(root)
     table_frame.pack(fill="both", expand=True, padx=30, pady=15)
     table = create_table(table_frame, columns=(
         "ID", "Date", "Type", "Amount", "Category", "Description"))
+    refresh_table()
 
     def add_transaction():  # Create add function for buttons
         """Open the window for user to add transaction"""
@@ -399,6 +398,84 @@ def create_gui():
 
         refresh_table()
 
+    def show_summary():
+        """Show a summary of all transactions."""
+
+        summary_window = tk.Toplevel(root)
+        summary_window.title("Financial Summary")
+        summary_window.geometry("700x700")
+        summary_window.configure(background="lightblue")
+
+        ttk.Label(summary_window,
+                  text="Financial Summary",
+                  font=("Segoe UI", 20, "bold"), foreground="coral4").pack(pady=10)
+
+        income, expenses, balance = total_calculate()
+
+        ttk.Label(summary_window,
+                  text=f"Total Income: €{income:.2f}").pack(pady=5)
+
+        ttk.Label(summary_window,
+                  text=f"Total Expenses: €{expenses:.2f}").pack(pady=5)
+
+        ttk.Label(summary_window,
+                  text=f"Balance: €{balance:.2f}"
+                  ).pack(pady=5)
+
+        # Prepare data for summary
+        data = {
+            "Date": [t.date for t in tracker.transactions],
+            "Type": [t.tst_type for t in tracker.transactions],
+            "Amount": [t.amount for t in tracker.transactions],
+            "Category": [t.category for t in tracker.transactions]}
+        df = pd.DataFrame(data)
+
+        df["Date"] = pd.to_datetime(df["Date"])
+        df["Month"] = df["Date"].dt.to_period("M")
+
+        # calculate the monthly data
+        ttk.Label(summary_window,
+                  text="Monthly Summary",
+                  font=("Segoe UI", 14, "bold"), foreground="coral4").pack(pady=10)
+
+        monthly_table = create_table(summary_window,
+                                     columns=("Month", "Income", "Expenses", "Balance"))
+
+        monthly = df.groupby(["Month", "Type"])[
+            "Amount"].sum().unstack(fill_value=0)
+        monthly["Balance"] = (monthly.get("income", 0) -
+                              monthly.get("expense", 0))
+
+        for month, row in monthly.iterrows():
+            monthly_table.insert(
+                "",
+                "end",
+                values=(
+                    str(month),
+                    f"€{row.get('income', 0):.2f}",
+                    f"€{row.get('expense', 0):.2f}",
+                    f"€{row['Balance']:.2f}"))
+
+        # Calculate category summary
+        ttk.Label(summary_window,
+                  text="Category Summary",
+                  font=("Segoe UI", 14, "bold"), foreground="coral4").pack(pady=10)
+
+        category_table = create_table(summary_window,
+                                      columns=("Category", "Types", "Amount"))
+
+        category_summary = (df.groupby(["Category", "Type"])[
+                            "Amount"].sum().reset_index())
+
+        for _, row in category_summary.iterrows():
+            category_table.insert(
+                "",
+                "end",
+                values=(
+                    row["Category"],
+                    row["Type"],
+                    f"€{row['Amount']:.2f}"))
+
     # Buttons for adding, editing, and removing transactions
     button_frame = ttk.Frame(root)
     button_frame.pack(pady=20)
@@ -418,6 +495,10 @@ def create_gui():
     ttk.Button(button_frame, text="Remove Transaction",
                command=remove_transaction).grid(
         row=0, column=3, padx=10)
+
+    ttk.Button(button_frame, text="Summary",
+               command=show_summary
+               ).grid(row=0, column=4, padx=10)
 
     root.mainloop()
 

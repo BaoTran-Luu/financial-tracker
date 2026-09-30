@@ -16,3 +16,13 @@ ID,Date,Type,Amount,Category,Description
 15,2026-09-17,expense,34.0,clothes,
 16,2026-09-17,expense,34.0,clothes,
 17,2026-07-22,expense,1345.0,loan,
+18,2026-09-21,expense,12.0,drink,
+22,2026-09-30,expense,1200.0,laptop,
+20,2026-09-30,expense,124.0,birthday,
+21,2026-09-30,income,1400.0,lottery,
+22,2025-09-10,expense,100.0,sofa,
+23,2026-05-20,income,1200.0,salary,
+24,2026-06-23,income,123.0,trial,test
+25,2026-07-07,expense,200.0,fix car,
+26,2025-09-11,expense,145.0,train,
+27,2026-07-23,expense,2.0,drink,
