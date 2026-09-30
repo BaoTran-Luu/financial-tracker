@@ -159,7 +159,7 @@ def main():
         else:
             print("Invalid choice.")
 
-        tracker.save_transactions()
+        
 
 if __name__ == "__main__":
     main()
